@@ -1,0 +1,44 @@
+openapi: 3.0.0
+paths:
+  /api/weeks:
+    post:
+      tags:
+        - Weeks
+      summary: 'Crear una nueva semana'
+      operationId: eeb8b89943e2bcdf8e80fd78c20ca2bf
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - id_historial_entreno
+                - dia
+                - fecha
+              properties:
+                id_historial_entreno:
+                  type: integer
+                dia:
+                  type: string
+                fecha:
+                  type: string
+                  format: date
+                cant_km:
+                  type: number
+                ritmo:
+                  type: string
+                comentario:
+                  type: string
+                tiempo:
+                  type: string
+                  example: '20:00'
+              type: object
+      responses:
+        '201':
+          description: 'Semana creada correctamente'
+        '422':
+          description: 'Error de validación'
+tags:
+  -
+    name: Weeks
+    description: Weeks

@@ -1,4 +1,12 @@
 <?php
+/**
+ * @OA\Info(
+ *     version="1.0.0",
+ *     title="API EnMovimientoRun",
+ *     description="Documentación de la API EnMovimientoRun"
+ * )
+ */
+
 
 use Illuminate\Support\Facades\Route;
 
@@ -10,6 +18,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\StudentController;
 // Importa el controlador de admin (administradores)
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\WeekController;
 
 // En routes/api.php
 Route::get('/test', function () {
@@ -44,3 +53,11 @@ Route::get('/admins/{id}', [AdminController::class, 'show']);
 Route::post('/admins', [AdminController::class, 'store']);
 Route::put('/admins/{id}', [AdminController::class, 'update']);
 Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
+
+
+//Rutas para controlar semanas
+Route::get('/weeks', [WeekController::class, 'index']);
+Route::get('/weeks/{id}', [WeekController::class, 'showWeek']);
+Route::post('/weeks', [WeekController::class, 'storeWeek']);
+Route::put('/weeks/{id}', [WeekController::class, 'updateWeek']);
+Route::delete('/weeks/{id}', [WeekController::class, 'destroyWeek']);
