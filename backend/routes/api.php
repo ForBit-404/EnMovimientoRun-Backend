@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 // Importa el controlador de user (usuarios)
 use App\Http\Controllers\UserController;
 // Importa el controlador de pay (pagos)
-// use App\Http\Controllers\PayController;
+use App\Http\Controllers\PayController;
 // Importa el controlador de student (estudiantes)
 use App\Http\Controllers\StudentController;
 // Importa el controlador de admin (administradores)
@@ -23,13 +23,6 @@ Route::post('/users', [UserController::class, 'store']);
 Route::put('/users/{id}', [UserController::class, 'update']);
 Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
-// Rutas para el controlador de pagos
-// Route::get('/pays', [PayController::class, 'index']);
-// Route::get('/pays/{id}', [PayController::class, 'show']);
-// Route::post('/pays', [PayController::class, 'store']);
-// Route::put('/pays/{id}', [PayController::class, 'update']);
-// Route::delete('/pays/{id}', [PayController::class, 'destroy']);
-
 // Rutas para el controlador de estudiantes
 Route::get('/students', [StudentController::class, 'index']);
 Route::get('/students/{id}', [StudentController::class, 'show']);
@@ -44,3 +37,13 @@ Route::get('/admins/{id}', [AdminController::class, 'show']);
 Route::post('/admins', [AdminController::class, 'store']);
 Route::put('/admins/{id}', [AdminController::class, 'update']);
 Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
+
+// Rutas para el controlador de pagos
+Route::get('/pays', [PayController::class, 'index']);
+Route::get('/pays/{id}', [PayController::class, 'show']);
+Route::post('/pays', [PayController::class, 'store']);
+Route::put('/pays/{id}', [PayController::class, 'update']);
+Route::delete('/pays/{id}', [PayController::class, 'destroy']);
+Route::get('/pays/{id}/withAlumno', [PayController::class, 'showWithAlumno']);
+Route::get('/students/{id}/pays', [PayController::class, 'pagosDeAlumno']);
+
