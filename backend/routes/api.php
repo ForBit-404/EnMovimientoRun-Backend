@@ -30,6 +30,7 @@ Route::post('/students', [StudentController::class, 'store']);
 Route::put('/students/{id}', [StudentController::class, 'update']);
 Route::put('/studentsBaja/{id}', [StudentController::class, 'darDeBaja']);
 Route::put('/studentsAlta/{id}', [StudentController::class, 'darDeAlta']);
+Route::delete('/students/{id}', [StudentController::class, 'destroy']);
 
 // Rutas para el controlador de administradores
 Route::get('/admins', [AdminController::class, 'index']);
@@ -41,9 +42,13 @@ Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
 // Rutas para el controlador de pagos
 Route::get('/pays', [PayController::class, 'index']);
 Route::get('/pays/{id}', [PayController::class, 'show']);
+
+Route::get('/pays/{id}/withAlumno', [PayController::class, 'showWithAlumno']);
+Route::get('/students/{id}/pays', [PayController::class, 'pagosDeAlumno']);
 Route::post('/pays', [PayController::class, 'store']);
 Route::put('/pays/{id}', [PayController::class, 'update']);
 Route::delete('/pays/{id}', [PayController::class, 'destroy']);
-Route::get('/pays/{id}/withAlumno', [PayController::class, 'showWithAlumno']);
-Route::get('/students/{id}/pays', [PayController::class, 'pagosDeAlumno']);
 
+//Rutas para los controladores de filtros
+Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose
+Route::get('/allUsers', [StudentController::class, 'filterAllUsers']); //Devuelve todos los tipos de usuario ({"total_alumnos", "alumnos_al_dia", "alumnos_con_deuda", "alumnos_baja", "nuevos_alumnos_ultimos_30_dias")

@@ -18,8 +18,7 @@ class PayController extends Controller {
 
         if (!$pago) {
             return response()->json(['message' => 'Pago no encontrado'], 404);
-        }
-
+        } develop
         return response()->json($pago);
     }
 
