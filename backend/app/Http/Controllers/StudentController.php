@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Student;
+use App\Models\User; 
 use Illuminate\Http\Request;
 
 class StudentController extends Controller{
@@ -50,7 +51,7 @@ class StudentController extends Controller{
             'edad' => 'required|string',
             'profesion' => 'required|string',
             'dias_gym' => 'required|string',
-            'dias_descanso' => 'required|string',
+            'dia_descanso' => 'required|string',
             'actividad_complementaria' => 'required|string',
             'km_objetivo' => 'required|string',
             'proximo_objetivo' => 'required|string',
@@ -69,7 +70,7 @@ class StudentController extends Controller{
             'edad' => $validatedStudent['edad'],
             'profesion' => $validatedStudent['profesion'],
             'dias_gym' => $validatedStudent['dias_gym'],
-            'dias_descanso' => $validatedStudent['dias_descanso'],
+            'dia_descanso' => $validatedStudent['dia_descanso'],
             'actividad_complementaria' => $validatedStudent['actividad_complementaria'],
             'km_objetivo' => $validatedStudent['km_objetivo'],
             'proximo_objetivo' => $validatedStudent['proximo_objetivo'],
@@ -96,7 +97,7 @@ class StudentController extends Controller{
         $camposUsuario = ['nombre', 'usuario', 'email', 'apellido', 'password', 'sexo'];
         $camposAlumno = [
             'fecha_registro', 'estado_sit_actual', 'estado_pago', 'edad', 'profesion',
-            'dias_gym', 'dias_descanso', 'actividad_complementaria', 'km_objetivo',
+            'dias_gym', 'dia_descanso', 'actividad_complementaria', 'km_objetivo',
             'proximo_objetivo', 'horario_entrenamiento', 'tiene_reloj_garmin',
             'condiciones_medicas', 'fecha_ultima_ergonometria', 'habitos_correr', 'objetivo'
         ];
@@ -148,5 +149,55 @@ class StudentController extends Controller{
         $student->estado_sit_actual = '1';
         $student->save();
         return response()->json(['message' => 'Estudiante dado de alta'], 200);
+    }
+
+    public function filterStudents(Request $request) {
+        $query = $request->input('query'); // texto que se va tipeando
+
+        $students = Student::with('user')
+            ->whereHas('user', function ($q) use ($query) {
+                $q->where('nombre', 'like', "%{$query}%")
+                ->orWhere('apellido', 'like', "%{$query}%")
+                ->orWhere('usuario', 'like', "%{$query}%");
+            })
+            ->get();
+
+        return response()->json($students);
+    }
+
+    public function filterAllUsers(Request $request) {
+        $totalAlumnos = Student::count();
+
+        $alumnosAlDia = Student::where('estado_pago', 1)->count();
+        $alumnosConDeuda = Student::where('estado_pago', 0)->count();
+
+        $alumnosBaja = Student::where('estado_sit_actual', 0)->count();
+
+        $nuevosAlumnos = Student::where('fecha_registro', '>=', now()->subDays(30))->count();
+
+        return response()->json([
+            'total_alumnos' => $totalAlumnos,
+            'alumnos_al_dia' => $alumnosAlDia,
+            'alumnos_con_deuda' => $alumnosConDeuda,
+            'alumnos_baja' => $alumnosBaja,
+            'nuevos_alumnos_ultimos_30_dias' => $nuevosAlumnos
+        ]);
+    }
+    // Eliminar estudiante
+    public function destroy($id){
+        $student = Student::find($id);
+
+        if (!$student) {
+            return response()->json(['message' => 'Estudiante no encontrado'], 404);
+        }
+
+        // Eliminar el usuario asociado al estudiante
+        $user = $student->user;
+        $user->delete();
+
+        // Eliminar el estudiante
+        $student->delete();
+
+        return response()->json(['message' => 'Estudiante eliminado correctamente'], 200);
     }
 }
