@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Admin;
 use App\Models\User;
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreUserRequest; 
 
 class AdminController extends Controller{
     // Obtener todos los administradores
@@ -23,16 +24,9 @@ class AdminController extends Controller{
     }
 
     // Crear administrador
-    public function store(Request $request){
+    public function store(StoreUserRequest  $request){
         // Validar los datos del usuario
-        $validatedUser = $request->validate([
-            'nombre' => 'required|string',
-            'usuario' => 'required|string|unique:usuario,usuario',
-            'email' => 'required|email|unique:usuario,email',
-            'apellido' => 'required|string',
-            'password' => 'required|string|min:6',
-            'sexo' => 'required|string'
-        ]);
+        $validatedUser = $request->validated();
 
         // Crear usuario (password se hashea con el mutator en el modelo)
         $user = User::create($validatedUser);

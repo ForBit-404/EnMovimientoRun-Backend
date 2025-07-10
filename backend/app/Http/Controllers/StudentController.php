@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\User; 
 use Illuminate\Http\Request;
+use App\Http\Requests\StoreUserRequest; 
 
 class StudentController extends Controller{
     // Obtener todos los estudiantes
@@ -24,25 +25,10 @@ class StudentController extends Controller{
     }
 
     // Crear estudiante
-    public function store(Request $request){
+    public function store(StoreUserRequest  $request){
         // Validar los datos del usuario de entrada
-        $validatedUser = $request->validate([
-            'nombre' => 'required|string',
-            'usuario' => 'required|string',
-            'email' => 'required|email',
-            'apellido' => 'required|string',
-            'password' => 'required|string|min:6',
-            'sexo' => 'required|string'
-        ]);
-        // Crear el usuario
-        $user = User::create([
-            'nombre' => $validatedUser['nombre'],
-            'usuario' => $validatedUser['usuario'],
-            'email' => $validatedUser['email'],
-            'apellido' => $validatedUser['apellido'],
-            'password' => bcrypt($validatedUser['password']),
-            'sexo' => $validatedUser['sexo']
-        ]);
+        $validatedUser = $request->validated();
+        $user = User::create($validatedUser);
         // Validar los datos del estudiante de entrada
         $validatedStudent = $request->validate([
             'fecha_registro' => 'required|date',
@@ -83,6 +69,7 @@ class StudentController extends Controller{
 
         return response()->json(['usuario' => $user, 'alumno' => $student], 201);
     }
+
     // Actualizar estudiante
     public function update(Request $request, $id){
         $student = Student::with('user')->find($id);
@@ -94,7 +81,7 @@ class StudentController extends Controller{
         $user = $student->user;
 
         // Campos permitidos para usuario y alumno (modificá según tus modelos)
-        $camposUsuario = ['nombre', 'usuario', 'email', 'apellido', 'password', 'sexo'];
+        $camposUsuario = ['nombre', 'usuario', 'email', 'apellido', 'password', 'sexo', 'dni'];
         $camposAlumno = [
             'fecha_registro', 'estado_sit_actual', 'estado_pago', 'edad', 'profesion',
             'dias_gym', 'dia_descanso', 'actividad_complementaria', 'km_objetivo',
