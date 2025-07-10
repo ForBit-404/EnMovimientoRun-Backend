@@ -44,6 +44,7 @@ Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
 // Rutas para el controlador de pagos
 Route::get('/pays', [PayController::class, 'index']);
 Route::get('/pays/{id}', [PayController::class, 'show']);
+
 Route::get('/pays/{id}/withAlumno', [PayController::class, 'showWithAlumno']);
 Route::get('/students/{id}/pays', [PayController::class, 'pagosDeAlumno']);
 Route::post('/pays', [PayController::class, 'store']);
