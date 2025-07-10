@@ -10,6 +10,8 @@ use App\Http\Controllers\PayController;
 use App\Http\Controllers\StudentController;
 // Importa el controlador de admin (administradores)
 use App\Http\Controllers\AdminController;
+// Importa el controlador de autenticación (login, logout, etc.)
+use App\Http\Controllers\AuthController;
 
 // En routes/api.php
 Route::get('/test', function () {
@@ -48,6 +50,10 @@ Route::get('/students/{id}/pays', [PayController::class, 'pagosDeAlumno']);
 Route::post('/pays', [PayController::class, 'store']);
 Route::put('/pays/{id}', [PayController::class, 'update']);
 Route::delete('/pays/{id}', [PayController::class, 'destroy']);
+
+// Rutas para el controlador de usuarios (login, logout, etc.)
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout']);
 
 //Rutas para los controladores de filtros
 Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose

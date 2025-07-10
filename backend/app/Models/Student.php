@@ -4,18 +4,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * User Model
- *
- * @property int $id
- * @property string $nombre
- * @property string $usuario
- * @property string $email
- * @property string $password
- * @property string $apellido
- * @property string $sexo
-**/
-
-/**
  * Student Model
  * @property date $fecha_registro
  * @property string $objetivo

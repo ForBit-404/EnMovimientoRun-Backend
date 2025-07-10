@@ -14,6 +14,7 @@ class User extends Model{
         'password',
         'apellido',
         'sexo',
+        'dni'
     ];
 
     public $timestamps = false;
@@ -25,4 +26,9 @@ class User extends Model{
     {
         $this->attributes['password'] = bcrypt($value);
     }
+
+    public function admin(){
+        return $this->hasOne(Admin::class, 'id', 'id');
+    }
+
 }
