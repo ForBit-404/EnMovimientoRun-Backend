@@ -14,8 +14,8 @@ class VerifyCsrfToken extends Middleware
         'students/*',
         'users',
         'users/*',
-        'pays',
-        'pays/*',
+        'payments',
+        'payments/*',
         'admins',
         'admins/*'
     ];

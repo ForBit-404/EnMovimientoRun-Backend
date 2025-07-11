@@ -1,9 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\Pay;
 use App\Models\Student;
 use Illuminate\Http\Request;
+
 
 class PayController extends Controller {
     // Obtener todos los pagos
@@ -18,7 +21,7 @@ class PayController extends Controller {
 
         if (!$pago) {
             return response()->json(['message' => 'Pago no encontrado'], 404);
-        } develop
+        }
         return response()->json($pago);
     }
 
@@ -108,4 +111,67 @@ class PayController extends Controller {
 
         return response()->json($pagos);
     }
-}
+    // Filtrar pagos por atributos específicos
+    public function filterPayments(Request $request){
+        $sql = "SELECT * FROM pago WHERE 1=1";
+        $bindings = [];
+
+        if ($request->filled('estado')) {
+            $sql .= " AND UPPER(TRIM(estado)) = ?";
+            $bindings[] = strtoupper(trim($request->estado));
+        }
+
+        if ($request->filled('medio_pago')) {
+            $sql .= " AND UPPER(TRIM(medio_pago)) = ?";
+            $bindings[] = strtoupper(trim($request->medio_pago));
+        }
+
+        if ($request->filled('monto_min')) {
+            $sql .= " AND monto >= ?";
+            $bindings[] = $request->monto_min;
+        }
+
+        if ($request->filled('monto_max')) {
+            $sql .= " AND monto <= ?";
+            $bindings[] = $request->monto_max;
+        }
+
+        if ($request->filled('fecha_inicio')) {
+            $sql .= " AND fecha_pago >= ?";
+            $bindings[] = $request->fecha_inicio;
+        }
+
+        if ($request->filled('fecha_fin')) {
+            $sql .= " AND fecha_pago <= ?";
+            $bindings[] = $request->fecha_fin;
+        }
+
+        $pagos = DB::select($sql, $bindings);
+
+        if (empty($pagos)) {
+            return response()->json(['message' => 'Pago no encontrado'], 404);
+        }
+
+        return response()->json($pagos);
+    }
+
+    public function filterStudentsWithPayments(Request $request) {
+        $query = Student::query();
+
+        // Filtros alumno
+        if ($request->filled('estado_pago')) {
+            $query->where('estado_pago', $request->estado_pago);
+        }
+
+        // Join con pagos y filtro sobre pagos
+        if ($request->filled('estado_pago_pago')) {
+            $query->whereHas('pagos', function($q) use ($request) {
+                $q->where('estado', $request->estado_pago_pago);
+            });
+        }
+
+        $students = $query->with('pagos')->get();
+
+        return response()->json($students);
+    }
+}   
