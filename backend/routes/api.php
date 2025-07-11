@@ -13,10 +13,13 @@ use App\Http\Controllers\AdminController;
 // Importa el controlador de autenticación (login, logout, etc.)
 use App\Http\Controllers\AuthController;
 
-// En routes/api.php
-Route::get('/test', function () {
-    return response()->json(['status' => 'API OK']);
-});
+//Rutas para los controladores de filtros
+Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose
+Route::get('/allUsers', [StudentController::class, 'filterAllStudents']); //Devuelve todos los tipos de alumnos ({"total_alumnos", "alumnos_al_dia", "alumnos_con_deuda", "alumnos_baja", "nuevos_alumnos_ultimos_30_dias")
+Route::get('/students/filters-by-attributes', [StudentController::class, 'filterByAttributes']); // Filtra estudiantes por atributos específicos
+Route::get('/payments/filters', [PayController::class, 'filterPayments']); // Filtra pagos por atributos específicos
+Route::get('/students-with-payments/filters', [PayController::class, 'filterStudentsWithPayments']); // Filtra estudiantes con pagos por atributos específicos
+
 
 // Rutas para el controlador de usuarios
 Route::get('/users', [UserController::class, 'index']);
@@ -42,19 +45,14 @@ Route::put('/admins/{id}', [AdminController::class, 'update']);
 Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
 
 // Rutas para el controlador de pagos
-Route::get('/pays', [PayController::class, 'index']);
-Route::get('/pays/{id}', [PayController::class, 'show']);
-
-Route::get('/pays/{id}/withAlumno', [PayController::class, 'showWithAlumno']);
-Route::get('/students/{id}/pays', [PayController::class, 'pagosDeAlumno']);
-Route::post('/pays', [PayController::class, 'store']);
-Route::put('/pays/{id}', [PayController::class, 'update']);
-Route::delete('/pays/{id}', [PayController::class, 'destroy']);
+Route::get('/payments', [PayController::class, 'index']);
+Route::get('/payments/{id}', [PayController::class, 'show']);
+Route::get('/payments/{id}/withAlumno', [PayController::class, 'showWithAlumno']);
+Route::get('/students/{id}/payments', [PayController::class, 'pagosDeAlumno']);
+Route::post('/payments', [PayController::class, 'store']);
+Route::put('/payments/{id}', [PayController::class, 'update']);
+Route::delete('/payments/{id}', [PayController::class, 'destroy']);
 
 // Rutas para el controlador de usuarios (login, logout, etc.)
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
-
-//Rutas para los controladores de filtros
-Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose
-Route::get('/allUsers', [StudentController::class, 'filterAllUsers']); //Devuelve todos los tipos de usuario ({"total_alumnos", "alumnos_al_dia", "alumnos_con_deuda", "alumnos_baja", "nuevos_alumnos_ultimos_30_dias")

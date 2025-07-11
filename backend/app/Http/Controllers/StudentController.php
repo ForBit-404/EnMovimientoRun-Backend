@@ -138,6 +138,24 @@ class StudentController extends Controller{
         return response()->json(['message' => 'Estudiante dado de alta'], 200);
     }
 
+    // Eliminar estudiante
+    public function destroy($id){
+        $student = Student::find($id);
+
+        if (!$student) {
+            return response()->json(['message' => 'Estudiante no encontrado'], 404);
+        }
+
+        // Eliminar el usuario asociado al estudiante
+        $user = $student->user;
+        $user->delete();
+
+        // Eliminar el estudiante
+        $student->delete();
+
+        return response()->json(['message' => 'Estudiante eliminado correctamente'], 200);
+    }
+
     public function filterStudents(Request $request) {
         $query = $request->input('query'); // texto que se va tipeando
 
@@ -152,7 +170,7 @@ class StudentController extends Controller{
         return response()->json($students);
     }
 
-    public function filterAllUsers(Request $request) {
+    public function filterAllStudents(Request $request) {
         $totalAlumnos = Student::count();
 
         $alumnosAlDia = Student::where('estado_pago', 1)->count();
@@ -170,21 +188,85 @@ class StudentController extends Controller{
             'nuevos_alumnos_ultimos_30_dias' => $nuevosAlumnos
         ]);
     }
-    // Eliminar estudiante
-    public function destroy($id){
-        $student = Student::find($id);
 
-        if (!$student) {
-            return response()->json(['message' => 'Estudiante no encontrado'], 404);
-        }
-
-        // Eliminar el usuario asociado al estudiante
-        $user = $student->user;
-        $user->delete();
-
-        // Eliminar el estudiante
-        $student->delete();
-
-        return response()->json(['message' => 'Estudiante eliminado correctamente'], 200);
+    /**
+     * Filtra estudiantes por atributos específicos.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function filterByAttributes(Request $request){
+        $students = Student::with('user') // Relación con usuario
+            ->where(function ($query) use ($request) {
+                // Filtros del modelo alumno
+                if ($request->filled('fecha_registro')) {
+                    $query->whereDate('fecha_registro', $request->fecha_registro);
+                }
+                if ($request->filled('estado_sit_actual')) {
+                    $query->where('estado_sit_actual', $request->estado_sit_actual);
+                }
+                if ($request->filled('estado_pago')) {
+                    $query->where('estado_pago', $request->estado_pago);
+                }
+                if ($request->filled('objetivo')) {
+                    $query->where('objetivo', 'like', '%' . $request->objetivo . '%');
+                }
+                if ($request->filled('profesion')) {
+                    $query->where('profesion', 'like', '%' . $request->profesion . '%');
+                }
+                if ($request->filled('dias_gym')) {
+                    $query->where('dias_gym', $request->dias_gym);
+                }
+                if ($request->filled('dia_descanso')) {
+                    $query->where('dia_descanso', $request->dia_descanso);
+                }
+                if ($request->filled('actividad_complementaria')) {
+                    $query->where('actividad_complementaria', 'like', '%' . $request->actividad_complementaria . '%');
+                }
+                if ($request->filled('km_objetivo')) {
+                    $query->where('km_objetivo', $request->km_objetivo);
+                }
+                if ($request->filled('proximo_objetivo')) {
+                    $query->where('proximo_objetivo', 'like', '%' . $request->proximo_objetivo . '%');
+                }
+                if ($request->filled('horario_entrenamiento')) {
+                    $query->where('horario_entrenamiento', $request->horario_entrenamiento);
+                }
+                if ($request->filled('tiene_reloj_garmin')) {
+                    $query->where('tiene_reloj_garmin', $request->tiene_reloj_garmin);
+                }
+                if ($request->filled('condiciones_medicas')) {
+                    $query->where('condiciones_medicas', 'like', '%' . $request->condiciones_medicas . '%');
+                }
+                if ($request->filled('fecha_ultima_ergonometria')) {
+                    $query->whereDate('fecha_ultima_ergonometria', $request->fecha_ultima_ergonometria);
+                }
+                if ($request->filled('habitos_correr')) {
+                    $query->where('habitos_correr', 'like', '%' . $request->habitos_correr . '%');
+                }
+            })
+            ->whereHas('user', function ($q) use ($request) {
+                // Filtros del modelo usuario
+                if ($request->filled('nombre')) {
+                    $q->where('nombre', 'like', '%' . $request->nombre . '%');
+                }
+                if ($request->filled('apellido')) {
+                    $q->where('apellido', 'like', '%' . $request->apellido . '%');
+                }
+                if ($request->filled('usuario')) {
+                    $q->where('usuario', 'like', '%' . $request->usuario . '%');
+                }
+                if ($request->filled('email')) {
+                    $q->where('email', 'like', '%' . $request->email . '%');
+                }
+                if ($request->filled('sexo')) {
+                    $q->where('sexo', $request->sexo);
+                }
+                if ($request->filled('dni')) {
+                    $q->where('dni', $request->dni);
+                }
+            })
+            ->get();
+        return response()->json($students);
     }
 }

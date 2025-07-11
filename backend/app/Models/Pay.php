@@ -16,10 +16,10 @@ use App\Models\Student;
 */
 
 class Pay extends Model {
+    protected $table = 'pago';
     protected $fillable = [
         'id_alumno', 'fecha_pago', 'monto', 'fecha_vencimiento', 'medio_pago', 'estado'
     ];
-    protected $table = 'pago';
     public $timestamps = false;
     protected $primaryKey = 'id';
     

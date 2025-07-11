@@ -32,7 +32,8 @@ class UserController extends Controller{
             'password' => 'required|string|min:6',
             'apellido' => 'required|string|max:255',
             'sexo' => 'required|string',
-            'dni' => 'required|int|unique:usuario,dni'
+            'dni' => 'required|int|unique:usuario,dni',
+            'fecha_nacimiento' => 'required|date'
         ]);
 
         dd($validated);  // <---- Esto muestra qué datos llegan validados
