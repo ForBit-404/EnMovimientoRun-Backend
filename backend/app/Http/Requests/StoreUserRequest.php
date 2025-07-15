@@ -27,6 +27,7 @@ class StoreUserRequest extends FormRequest{
             'sexo' => 'required|string',
             'dni' => 'required|integer|unique:usuario,dni',
             'fecha_nacimiento' => 'required|date',
+            'telefono' => 'required|int'
         ];
     }
 }
