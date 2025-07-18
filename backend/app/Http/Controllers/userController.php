@@ -31,16 +31,18 @@ class UserController extends Controller{
             'email' => 'required|email|unique:usuario,email',
             'password' => 'required|string|min:6',
             'apellido' => 'required|string|max:255',
-            'sexo' => 'required|string'
+            'sexo' => 'required|string',
+            'dni' => 'required|int|unique:usuario,dni',
+            'fecha_nacimiento' => 'required|date',
+            'telefono' => 'required|int'
         ]);
 
-        // El mutator en User se encargará de hashear el password
-        $user = User::create($validated);
+        dd($validated);  // <---- Esto muestra qué datos llegan validados
+        $user = User::create($validated); // El mutator en User se encargará de hashear el password
 
         return response()->json([
             'message' => 'Usuario creado correctamente',
             'user' => $user
         ], 201);
     }
-
 }
