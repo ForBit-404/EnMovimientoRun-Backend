@@ -45,7 +45,8 @@ class StudentController extends Controller{
             'tiene_reloj_garmin' => 'required|boolean',
             'condiciones_medicas' => 'required|string',
             'fecha_ultima_ergonometria' => 'required|date',
-            'habitos_correr' => 'required|string'
+            'habitos_correr' => 'required|string',
+            'marcaCelular' => 'required|string'
         ]);
         // Crear el estudiante asociado al usuario
         $student = Student::create([
@@ -64,7 +65,8 @@ class StudentController extends Controller{
             'tiene_reloj_garmin' => $validatedStudent['tiene_reloj_garmin'],
             'condiciones_medicas' => $validatedStudent['condiciones_medicas'],
             'fecha_ultima_ergonometria' => $validatedStudent['fecha_ultima_ergonometria'],
-            'habitos_correr' => $validatedStudent['habitos_correr']
+            'habitos_correr' => $validatedStudent['habitos_correr'],
+            'marcaCelular' => $validatedStudent['marcaCelular']
         ]);
 
         return response()->json(['usuario' => $user, 'alumno' => $student], 201);
