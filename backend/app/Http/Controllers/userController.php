@@ -34,7 +34,8 @@ class UserController extends Controller{
             'sexo' => 'required|string',
             'dni' => 'required|int|unique:usuario,dni',
             'fecha_nacimiento' => 'required|date',
-            'telefono' => 'required|int'
+            'telefono' => 'required|int',
+            'fecha_registro' => 'required|date'
         ]);
 
         dd($validated);  // <---- Esto muestra qué datos llegan validados

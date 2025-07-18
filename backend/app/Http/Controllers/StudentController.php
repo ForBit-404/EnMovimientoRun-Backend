@@ -9,8 +9,8 @@ use App\Http\Requests\StoreUserRequest;
 class StudentController extends Controller{
     // Obtener todos los estudiantes
     public function index(){
-        $estudiantes = Student::all(); // trae todos los estudiantes
-        return response()->json($estudiantes);
+        $students = Student::with('user')->get();
+        return response()->json($students);
     }
 
     // Obtener un estudiante por ID
@@ -31,7 +31,6 @@ class StudentController extends Controller{
         $user = User::create($validatedUser);
         // Validar los datos del estudiante de entrada
         $validatedStudent = $request->validate([
-            'fecha_registro' => 'required|date',
             'estado_sit_actual' => 'required|boolean',
             'estado_pago' => 'required|boolean',
             'edad' => 'required|string',
@@ -51,7 +50,6 @@ class StudentController extends Controller{
         // Crear el estudiante asociado al usuario
         $student = Student::create([
             'id' => $user->id, // Asignar el ID del usuario al estudiante
-            'fecha_registro' => $validatedStudent['fecha_registro'],
             'estado_sit_actual' => $validatedStudent['estado_sit_actual'],
             'estado_pago' => $validatedStudent['estado_pago'],
             'edad' => $validatedStudent['edad'],
