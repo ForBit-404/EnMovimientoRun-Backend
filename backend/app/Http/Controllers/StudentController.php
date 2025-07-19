@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use App\Models\TrainingPlan;
+use App\Models\HistoryTraining;
 
 class StudentController extends Controller{
     // Obtener todos los estudiantes
@@ -28,9 +30,7 @@ class StudentController extends Controller{
     }
     // Crear nuevo estudiante
     public function store(Request $request){
-        \Log::debug('Ingreso a store con transacción');
-
-        // Validar usuario manualmente con StoreUserRequest
+                // Validar usuario manualmente con StoreUserRequest
         $userValidator = Validator::make(
             $request->all(),
             (new StoreUserRequest)->rules()
@@ -64,6 +64,30 @@ class StudentController extends Controller{
             'cant_dias_entreno' => 'required|int',
             'horario_entreno_grupal' => 'required|string'
         ]);
+        HistoryTraining::create([
+            'descripcion' => 'Historial de entrenamiento de alumno: ' . $student->id,
+            'fecha_inicio' => now()->toDateString()
+        ]);
+        // Si se envía un plan de entrenamiento, se crea
+        // Si no, se crea un plan general
+        if($request->has('plan_entrenamiento'))
+        {           
+            TrainingPlan::create([
+                'id_alumno' => $student->id,
+                'id_historial_entrenamiento' =>  HistoryTraining::orderBy('id', 'desc')->value('id'),
+                'nombre' => $request->input('plan_entrenamiento'),
+                'fecha_inicio' => now()->toDateString()
+            ]);
+        }else {
+            
+            TrainingPlan::create([
+                'id_alumno' => $student->id,
+                'id_historial_entrenamiento' =>  HistoryTraining::orderBy('id', 'desc')->value('id'),
+                'nombre' => 'Plan General',
+                'fecha_inicio' => now()->toDateString()
+            ]);
+            return response()->json(['message' => 'Plan de entrenamiento creado correctamente'], 201);
+        }
 
         try {
             DB::beginTransaction();

@@ -1,9 +1,19 @@
 <?php
+/**
+ * @OA\Info(
+ *     version="1.0.0",
+ *     title="API EnMovimientoRun",
+ *     description="Documentación de la API EnMovimientoRun"
+ * )
+ */
+
 
 use Illuminate\Support\Facades\Route;
 
 // Importa el controlador de user (usuarios)
 use App\Http\Controllers\UserController;
+// Importa el controlador de pay (pagos)
+use App\Http\Controllers\PayController;
 // Importa el controlador de student (estudiantes)
 use App\Http\Controllers\StudentController;
 // Importa el controlador de admin (administradores)
@@ -14,6 +24,10 @@ use App\Http\Controllers\PayController;
 use App\Http\Controllers\AuthController;
 // Importa el controlador de archivos
 use App\Http\Controllers\FileController;
+// Importa el controlador de WeekController (Semanas de entrenamiento)
+use App\Http\Controllers\WeekContoller;
+// Importa el controlador de TrainingPlanController (Plan de entrenamiento)
+use App\Http\Controllers\TrainginPlanController;
 
 //Rutas para los controladores de filtros
 Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose
@@ -36,7 +50,6 @@ Route::get('/students/{id}', [StudentController::class, 'show']);
 Route::put('/students/{id}', [StudentController::class, 'update']);
 Route::put('/studentsBaja/{id}', [StudentController::class, 'darDeBaja']);
 Route::put('/studentsAlta/{id}', [StudentController::class, 'darDeAlta']);
-Route::delete('/students/{id}', [StudentController::class, 'destroy']);
 
 // Rutas para el controlador de administradores
 Route::get('/admins', [AdminController::class, 'index']);
@@ -44,6 +57,13 @@ Route::get('/admins/{id}', [AdminController::class, 'show']);
 Route::post('/admins', [AdminController::class, 'store']);
 Route::put('/admins/{id}', [AdminController::class, 'update']);
 Route::delete('/admins/{id}', [AdminController::class, 'destroy']);
+
+// Rutas para el controlador de pagos
+Route::get('/pays', [PayController::class, 'index']);
+Route::get('/pays/{id}', [PayController::class, 'show']);
+Route::post('/pays', [PayController::class, 'store']);
+Route::put('/pays/{id}', [PayController::class, 'update']);
+Route::delete('/pays/{id}', [PayController::class, 'destroy']);
 
 // Rutas para el controlador de pagos
 Route::get('/payments', [PayController::class, 'index']);
@@ -64,3 +84,11 @@ Route::get('/files/{id}', [FileController::class, 'show']);
 Route::post('/files', [FileController::class, 'store']);
 Route::put('/files/{id}', [FileController::class, 'update']);
 Route::delete('/files/{id}', [FileController::class, 'destroy']);
+
+// Rutas para el controlador de planes de entrenamiento
+Route::get('/training-plans', [TrainginPlanController::class, 'index']);
+Route::get('/training-plans/{id}', [TrainginPlanController::class, 'show']);
+Route::get('/training-plans/{id}/withAlumno', [TrainginPlanController::class, 'showWithAlumno']);
+Route::post('/training-plans', [TrainginPlanController::class, 'store']);
+Route::put('/training-plans/{id}', [TrainginPlanController::class, 'update']);
+Route::delete('/training-plans/{id}', [TrainginPlanController::class, 'destroy']);

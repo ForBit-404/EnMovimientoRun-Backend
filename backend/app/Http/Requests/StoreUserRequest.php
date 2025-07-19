@@ -26,5 +26,4 @@ class StoreUserRequest extends FormRequest{
             'telefono' => 'required|integer'
         ];
     }
-
 }
