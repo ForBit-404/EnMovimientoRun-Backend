@@ -22,6 +22,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\WeekContoller;
+use App\Http\Controllers\TrainginPlanController;
 
 //Rutas para los controladores de filtros
 Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose
@@ -72,3 +73,12 @@ Route::delete('/payments/{id}', [PayController::class, 'destroy']);
 // Rutas para el controlador de usuarios (login, logout, etc.)
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+
+
+// Rutas para el controlador de planes de entrenamiento
+Route::get('/training-plans', [TrainginPlanController::class, 'index']);
+Route::get('/training-plans/{id}', [TrainginPlanController::class, 'show']);
+Route::get('/training-plans/{id}/withAlumno', [TrainginPlanController::class, 'showWithAlumno']);
+Route::post('/training-plans', [TrainginPlanController::class, 'store']);
+Route::put('/training-plans/{id}', [TrainginPlanController::class, 'update']);
+Route::delete('/training-plans/{id}', [TrainginPlanController::class, 'destroy']);
