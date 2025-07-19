@@ -4,17 +4,16 @@ use Illuminate\Support\Facades\Route;
 
 // Importa el controlador de user (usuarios)
 use App\Http\Controllers\UserController;
-// Importa el controlador de pay (pagos)
-use App\Http\Controllers\PayController;
 // Importa el controlador de student (estudiantes)
 use App\Http\Controllers\StudentController;
 // Importa el controlador de admin (administradores)
 use App\Http\Controllers\AdminController;
+// Importa el controlador de pay (pagos)
+use App\Http\Controllers\PayController;
 // Importa el controlador de autenticación (login, logout, etc.)
 use App\Http\Controllers\AuthController;
 // Importa el controlador de archivos
 use App\Http\Controllers\FileController;
-
 
 //Rutas para los controladores de filtros
 Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose
@@ -22,7 +21,6 @@ Route::get('/allUsers', [StudentController::class, 'filterAllStudents']); //Devu
 Route::get('/students/filters-by-attributes', [StudentController::class, 'filterByAttributes']); // Filtra estudiantes por atributos específicos
 Route::get('/payments/filters', [PayController::class, 'filterPayments']); // Filtra pagos por atributos específicos
 Route::get('/students-with-payments/filters', [PayController::class, 'filterStudentsWithPayments']); // Filtra estudiantes con pagos por atributos específicos
-
 
 // Rutas para el controlador de usuarios
 Route::get('/users', [UserController::class, 'index']);
@@ -33,8 +31,8 @@ Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 // Rutas para el controlador de estudiantes
 Route::get('/students', [StudentController::class, 'index']);
-Route::get('/students/{id}', [StudentController::class, 'show']);
 Route::post('/students', [StudentController::class, 'store']);
+Route::get('/students/{id}', [StudentController::class, 'show']);
 Route::put('/students/{id}', [StudentController::class, 'update']);
 Route::put('/studentsBaja/{id}', [StudentController::class, 'darDeBaja']);
 Route::put('/studentsAlta/{id}', [StudentController::class, 'darDeAlta']);

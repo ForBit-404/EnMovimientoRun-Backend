@@ -59,7 +59,7 @@ class Student extends Model{
         'dias_gym' => 'string',
         'dia_descanso' => 'string',
         'actividad_complementaria' => 'string',
-        'km_objetivo' => 'string',
+        'km_objetivo' => 'integer',
         'proximo_objetivo' => 'string',
         'horario_entrenamiento' => 'string',
         'tiene_reloj_garmin' => 'boolean',
@@ -79,5 +79,4 @@ class Student extends Model{
     public function pagos(){
         return $this->hasMany(Pay::class, 'id_alumno', 'id');
     }
-
 }
