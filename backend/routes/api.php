@@ -12,6 +12,9 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\AdminController;
 // Importa el controlador de autenticación (login, logout, etc.)
 use App\Http\Controllers\AuthController;
+// Importa el controlador de archivos
+use App\Http\Controllers\FileController;
+
 
 //Rutas para los controladores de filtros
 Route::get('/students/filters', [StudentController::class, 'filterStudents']); //Vas tipieando y va actualizandose
@@ -56,3 +59,10 @@ Route::delete('/payments/{id}', [PayController::class, 'destroy']);
 // Rutas para el controlador de usuarios (login, logout, etc.)
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+
+// Rutas para el controlador de archivos
+Route::get('/files', [FileController::class, 'index']);
+Route::get('/files/{id}', [FileController::class, 'show']);
+Route::post('/files', [FileController::class, 'store']);
+Route::put('/files/{id}', [FileController::class, 'update']);
+Route::delete('/files/{id}', [FileController::class, 'destroy']);

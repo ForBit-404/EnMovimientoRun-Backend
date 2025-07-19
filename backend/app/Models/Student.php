@@ -25,12 +25,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model{
     protected $fillable = [
-        'id','fecha_registro', 'objetivo', 'estado_sit_actual', 
-        'estado_pago', 'edad', 'profesion', 'dias_gym', 'dia_descanso',
-        'actividad_complementaria', 'km_objetivo', 'proximo_objetivo',
-        'horario_entrenamiento', 'tiene_reloj_garmin', 
-        'condiciones_medicas', 'fecha_ultima_ergonometria', 
-        'habitos_correr'
+        'id', 
+        'objetivo', 
+        'estado_sit_actual', 
+        'estado_pago', 
+        'profesion', 
+        'dias_gym', 
+        'dia_descanso',
+        'actividad_complementaria', 
+        'km_objetivo', 
+        'proximo_objetivo',
+        'horario_entrenamiento', 
+        'tiene_reloj_garmin', 
+        'condiciones_medicas', 
+        'fecha_ultima_ergonometria', 
+        'habitos_correr',
+        'marcaCelular',
+        'deportes_previos',
+        'cant_dias_entreno',
+        'horario_entreno_grupal'
     ];
     protected $table = 'alumno';
     public $timestamps = false;
@@ -39,10 +52,9 @@ class Student extends Model{
     protected $hidden = ['password'];
     protected $casts = [
         'id' => 'integer',
-        'fecha_registro' => 'date',
+        'objetivo' => 'string',
         'estado_sit_actual' => 'boolean',
         'estado_pago' => 'boolean',
-        'edad' => 'string',
         'profesion' => 'string',
         'dias_gym' => 'string',
         'dia_descanso' => 'string',
@@ -53,7 +65,11 @@ class Student extends Model{
         'tiene_reloj_garmin' => 'boolean',
         'condiciones_medicas' => 'string',
         'fecha_ultima_ergonometria' => 'date',
-        'habitos_correr' => 'string'
+        'habitos_correr' => 'string',
+        'marcaCelular' => 'string',
+        'deportes_previos' => 'string',
+        'cant_dias_entreno' => 'integer',
+        'horario_entreno_grupal' => 'string'
     ];
 
     public function user(){
