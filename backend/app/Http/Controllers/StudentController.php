@@ -5,6 +5,8 @@ use App\Models\Student;
 use App\Models\User; 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreUserRequest; 
+use App\Models\TrainingPlan;
+use App\Models\HistoryTraining;
 
 class StudentController extends Controller{
     // Obtener todos los estudiantes
@@ -25,35 +27,64 @@ class StudentController extends Controller{
     }
 
     // Crear estudiante
-    public function store(StoreUserRequest  $request){
+    public function store(Request $request){
         // Validar los datos del usuario de entrada
-        $validatedUser = $request->validated();
-        $user = User::create($validatedUser);
+        // $validatedUser = $request->validated();
+        // $user = User::create($validatedUser);
+        $validatedUser = $request->validate([
+            'nombre' => 'required|string',
+            'usuario' => 'required|string',
+            'email' => 'required|string',
+            'password' => 'required|string|min:6',
+            'apellido' => 'required|string',
+            'sexo' => 'required|string',
+            'dni' => 'required|int',
+            'fecha_nacimiento' => 'required|date',
+            'telefono' => 'required|int',
+        ]);
+        
+        // Crear el usuario
+        $user = User::create([
+            'nombre' => $validatedUser['nombre'],
+            'usuario' => $validatedUser['usuario'],
+            'email' => $validatedUser['email'],
+            'apellido' => $validatedUser['apellido'],
+            'password' => bcrypt($validatedUser['password']),
+            'sexo' => $validatedUser['sexo'],
+            'dni' => $validatedUser['dni'],
+            'fecha_nacimiento' => $validatedUser['fecha_nacimiento'],
+            'telefono' => $validatedUser['telefono']
+        ]);
+        
         // Validar los datos del estudiante de entrada
         $validatedStudent = $request->validate([
-            'fecha_registro' => 'required|date',
+            'objetivo' => 'required|string',
             'estado_sit_actual' => 'required|boolean',
             'estado_pago' => 'required|boolean',
-            'edad' => 'required|string',
+            // 'edad' => 'required|string',
             'profesion' => 'required|string',
             'dias_gym' => 'required|string',
             'dia_descanso' => 'required|string',
             'actividad_complementaria' => 'required|string',
-            'km_objetivo' => 'required|string',
+            'km_objetivo' => 'required|numeric',
             'proximo_objetivo' => 'required|string',
             'horario_entrenamiento' => 'required|string',
             'tiene_reloj_garmin' => 'required|boolean',
             'condiciones_medicas' => 'required|string',
             'fecha_ultima_ergonometria' => 'required|date',
-            'habitos_correr' => 'required|string'
+            'habitos_correr' => 'required|string',
+            'marcaCelular' => 'required|string',
+            'deportes_previos' => 'required|string',
+            'cant_dias_entreno' => 'required|integer',
+            'horario_entreno_grupal' => 'required|string'                      
         ]);
+        
         // Crear el estudiante asociado al usuario
         $student = Student::create([
             'id' => $user->id, // Asignar el ID del usuario al estudiante
-            'fecha_registro' => $validatedStudent['fecha_registro'],
+            'objetivo' => $validatedStudent['objetivo'],
             'estado_sit_actual' => $validatedStudent['estado_sit_actual'],
-            'estado_pago' => $validatedStudent['estado_pago'],
-            'edad' => $validatedStudent['edad'],
+            'estado_pago' => $validatedStudent['estado_pago'],            
             'profesion' => $validatedStudent['profesion'],
             'dias_gym' => $validatedStudent['dias_gym'],
             'dia_descanso' => $validatedStudent['dia_descanso'],
@@ -64,8 +95,36 @@ class StudentController extends Controller{
             'tiene_reloj_garmin' => $validatedStudent['tiene_reloj_garmin'],
             'condiciones_medicas' => $validatedStudent['condiciones_medicas'],
             'fecha_ultima_ergonometria' => $validatedStudent['fecha_ultima_ergonometria'],
-            'habitos_correr' => $validatedStudent['habitos_correr']
+            'habitos_correr' => $validatedStudent['habitos_correr'],
+            'marcaCelular' => $validatedStudent['marcaCelular'],
+            'deportes_previos' => $validatedStudent['deportes_previos'],
+            'cant_dias_entreno' => $validatedStudent['cant_dias_entreno'],
+            'horario_entreno_grupal' => $validatedStudent['horario_entreno_grupal']
         ]);
+        HistoryTraining::create([
+            'descripcion' => 'Historial de entrenamiento de alumno: ' . $student->id,
+            'fecha_inicio' => now()->toDateString()
+        ]);
+        // Si se envía un plan de entrenamiento, se crea
+        // Si no, se crea un plan general
+        if($request->has('plan_entrenamiento'))
+        {           
+            TrainingPlan::create([
+                'id_alumno' => $student->id,
+                'id_historial_entrenamiento' =>  HistoryTraining::orderBy('id', 'desc')->value('id'),
+                'nombre' => $request->input('plan_entrenamiento'),
+                'fecha_inicio' => now()->toDateString()
+            ]);
+        }else {
+            
+            TrainingPlan::create([
+                'id_alumno' => $student->id,
+                'id_historial_entrenamiento' =>  HistoryTraining::orderBy('id', 'desc')->value('id'),
+                'nombre' => 'Plan General',
+                'fecha_inicio' => now()->toDateString()
+            ]);
+            return response()->json(['message' => 'Plan de entrenamiento creado correctamente'], 201);
+        }
 
         return response()->json(['usuario' => $user, 'alumno' => $student], 201);
     }
