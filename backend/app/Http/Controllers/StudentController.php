@@ -3,18 +3,21 @@
 namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Models\User; 
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreUserRequest; 
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use App\Models\TrainingPlan;
 use App\Models\HistoryTraining;
 
 class StudentController extends Controller{
     // Obtener todos los estudiantes
     public function index(){
-        $estudiantes = Student::all(); // trae todos los estudiantes
-        return response()->json($estudiantes);
+        $students = Student::with('user')->get();
+        return response()->json($students);
     }
-
     // Obtener un estudiante por ID
     public function show($id){
         $student = Student::with('user')->find($id);
@@ -25,48 +28,31 @@ class StudentController extends Controller{
 
         return response()->json($student);
     }
-
-    // Crear estudiante
+    // Crear nuevo estudiante
     public function store(Request $request){
-        // Validar los datos del usuario de entrada
-        // $validatedUser = $request->validated();
-        // $user = User::create($validatedUser);
-        $validatedUser = $request->validate([
-            'nombre' => 'required|string',
-            'usuario' => 'required|string',
-            'email' => 'required|string',
-            'password' => 'required|string|min:6',
-            'apellido' => 'required|string',
-            'sexo' => 'required|string',
-            'dni' => 'required|int',
-            'fecha_nacimiento' => 'required|date',
-            'telefono' => 'required|int',
-        ]);
-        
-        // Crear el usuario
-        $user = User::create([
-            'nombre' => $validatedUser['nombre'],
-            'usuario' => $validatedUser['usuario'],
-            'email' => $validatedUser['email'],
-            'apellido' => $validatedUser['apellido'],
-            'password' => bcrypt($validatedUser['password']),
-            'sexo' => $validatedUser['sexo'],
-            'dni' => $validatedUser['dni'],
-            'fecha_nacimiento' => $validatedUser['fecha_nacimiento'],
-            'telefono' => $validatedUser['telefono']
-        ]);
-        
-        // Validar los datos del estudiante de entrada
+                // Validar usuario manualmente con StoreUserRequest
+        $userValidator = Validator::make(
+            $request->all(),
+            (new StoreUserRequest)->rules()
+        );
+
+        if ($userValidator->fails()) {
+            return response()->json([
+                'errors' => $userValidator->errors()
+            ], 422);
+        }
+        $validatedUser = $userValidator->validated();
+
+        // Validar datos alumno
         $validatedStudent = $request->validate([
             'objetivo' => 'required|string',
             'estado_sit_actual' => 'required|boolean',
             'estado_pago' => 'required|boolean',
-            // 'edad' => 'required|string',
             'profesion' => 'required|string',
             'dias_gym' => 'required|string',
             'dia_descanso' => 'required|string',
             'actividad_complementaria' => 'required|string',
-            'km_objetivo' => 'required|numeric',
+            'km_objetivo' => 'required|int',
             'proximo_objetivo' => 'required|string',
             'horario_entrenamiento' => 'required|string',
             'tiene_reloj_garmin' => 'required|boolean',
@@ -75,31 +61,8 @@ class StudentController extends Controller{
             'habitos_correr' => 'required|string',
             'marcaCelular' => 'required|string',
             'deportes_previos' => 'required|string',
-            'cant_dias_entreno' => 'required|integer',
-            'horario_entreno_grupal' => 'required|string'                      
-        ]);
-        
-        // Crear el estudiante asociado al usuario
-        $student = Student::create([
-            'id' => $user->id, // Asignar el ID del usuario al estudiante
-            'objetivo' => $validatedStudent['objetivo'],
-            'estado_sit_actual' => $validatedStudent['estado_sit_actual'],
-            'estado_pago' => $validatedStudent['estado_pago'],            
-            'profesion' => $validatedStudent['profesion'],
-            'dias_gym' => $validatedStudent['dias_gym'],
-            'dia_descanso' => $validatedStudent['dia_descanso'],
-            'actividad_complementaria' => $validatedStudent['actividad_complementaria'],
-            'km_objetivo' => $validatedStudent['km_objetivo'],
-            'proximo_objetivo' => $validatedStudent['proximo_objetivo'],
-            'horario_entrenamiento' => $validatedStudent['horario_entrenamiento'],
-            'tiene_reloj_garmin' => $validatedStudent['tiene_reloj_garmin'],
-            'condiciones_medicas' => $validatedStudent['condiciones_medicas'],
-            'fecha_ultima_ergonometria' => $validatedStudent['fecha_ultima_ergonometria'],
-            'habitos_correr' => $validatedStudent['habitos_correr'],
-            'marcaCelular' => $validatedStudent['marcaCelular'],
-            'deportes_previos' => $validatedStudent['deportes_previos'],
-            'cant_dias_entreno' => $validatedStudent['cant_dias_entreno'],
-            'horario_entreno_grupal' => $validatedStudent['horario_entreno_grupal']
+            'cant_dias_entreno' => 'required|int',
+            'horario_entreno_grupal' => 'required|string'
         ]);
         HistoryTraining::create([
             'descripcion' => 'Historial de entrenamiento de alumno: ' . $student->id,
@@ -126,9 +89,28 @@ class StudentController extends Controller{
             return response()->json(['message' => 'Plan de entrenamiento creado correctamente'], 201);
         }
 
-        return response()->json(['usuario' => $user, 'alumno' => $student], 201);
-    }
+        try {
+            DB::beginTransaction();
 
+            // Crear usuario
+            $user = User::create($validatedUser);
+
+            // Crear alumno con mismo id que usuario
+            $student = Student::create([
+                'id' => $user->id,
+                ...$validatedStudent
+            ]);
+
+            DB::commit();
+
+            return response()->json(['usuario' => $user, 'alumno' => $student], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error creando usuario y alumno: ' . $e->getMessage());
+            return response()->json(['error' => 'No se pudo crear el usuario y alumno'], 500);
+        }
+    }
     // Actualizar estudiante
     public function update(Request $request, $id){
         $student = Student::with('user')->find($id);
@@ -140,21 +122,25 @@ class StudentController extends Controller{
         $user = $student->user;
 
         // Campos permitidos para usuario y alumno (modificá según tus modelos)
-        $camposUsuario = ['nombre', 'usuario', 'email', 'apellido', 'password', 'sexo', 'dni'];
-        $camposAlumno = [
-            'fecha_registro', 'estado_sit_actual', 'estado_pago', 'edad', 'profesion',
-            'dias_gym', 'dia_descanso', 'actividad_complementaria', 'km_objetivo',
-            'proximo_objetivo', 'horario_entrenamiento', 'tiene_reloj_garmin',
-            'condiciones_medicas', 'fecha_ultima_ergonometria', 'habitos_correr', 'objetivo'
+        $camposUsuario = [
+            'nombre', 'usuario', 'email', 'password', 'apellido', 
+            'sexo', 'dni', 'fecha_nacimiento', 'telefono'
         ];
-
+        $camposAlumno = [
+            'objetivo', 'estado_sit_actual', 'estado_pago', 
+            'profesion', 'dias_gym', 'dia_descanso', 'actividad_complementaria', 
+            'km_objetivo', 'proximo_objetivo', 'horario_entrenamiento', 
+            'tiene_reloj_garmin', 'condiciones_medicas', 
+            'fecha_ultima_ergonometria', 'habitos_correr', 'marcaCelular',
+            'deportes_previos', 'cant_dias_entreno', 'horario_entreno_grupal'
+        ];
         // Actualizar dinámicamente campos de usuario
         foreach ($camposUsuario as $campo) {
             if ($request->has($campo)) {
                 // Para password encriptarla
-                if ($campo === 'password') {
+                if ($campo === 'password' && $request->filled('password')) {
                     $user->$campo = bcrypt($request->input($campo));
-                } else {
+                } elseif ($campo !== 'password') {
                     $user->$campo = $request->input($campo);
                 }
             }
@@ -196,7 +182,6 @@ class StudentController extends Controller{
         $student->save();
         return response()->json(['message' => 'Estudiante dado de alta'], 200);
     }
-
     // Eliminar estudiante
     public function destroy($id){
         $student = Student::find($id);
@@ -205,16 +190,18 @@ class StudentController extends Controller{
             return response()->json(['message' => 'Estudiante no encontrado'], 404);
         }
 
-        // Eliminar el usuario asociado al estudiante
-        $user = $student->user;
-        $user->delete();
-
-        // Eliminar el estudiante
+        // Eliminar primero el estudiante (dependiente)
         $student->delete();
+
+        // Luego eliminar el usuario asociado
+        $user = $student->user;
+        if ($user) {
+            $user->delete();
+        }
 
         return response()->json(['message' => 'Estudiante eliminado correctamente'], 200);
     }
-
+    /* Filtra estudiantes por texto ingresado - @param Request $request - @return \Illuminate\Http\JsonResponse */
     public function filterStudents(Request $request) {
         $query = $request->input('query'); // texto que se va tipeando
 
@@ -228,7 +215,7 @@ class StudentController extends Controller{
 
         return response()->json($students);
     }
-
+    /* Filtra todos los estudiantes y devuelve estadísticas - @param Request $request - @return \Illuminate\Http\JsonResponse */
     public function filterAllStudents(Request $request) {
         $totalAlumnos = Student::count();
 
@@ -247,13 +234,7 @@ class StudentController extends Controller{
             'nuevos_alumnos_ultimos_30_dias' => $nuevosAlumnos
         ]);
     }
-
-    /**
-     * Filtra estudiantes por atributos específicos.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-    */
+    /* Filtra estudiantes por atributos específicos - @param Request $request @return \Illuminate\Http\JsonResponse */
     public function filterByAttributes(Request $request){
         $students = Student::with('user') // Relación con usuario
             ->where(function ($query) use ($request) {
